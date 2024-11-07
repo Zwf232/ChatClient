@@ -11,37 +11,36 @@ public class client implements Database{
         }
     public client(){
         try{
-
             // 建立连接
             socket = new Socket("127.0.0.1", 8888);
             //登录信息
-            Scanner sc=new Scanner(System.in);
+            Scanner sc=new Scanner(System.in);//输入用户名
             System.out.println("请输入用户名");
-            String user0=sc.nextLine();
+            String user0=sc.nextLine();// 输入密码
             System.out.println("请输入密码");
             String password=sc.nextLine();
-
+            //封装信息向服务器发送请求
             message msg0=new message();
             msg0.setType("登录请求");
             msg0.setUser(user0);
             msg0.setMsg(password);
 
             // 发送信息
-            ObjectOutputStream oos=new ObjectOutputStream(socket.getOutputStream());
+            ObjectOutputStream oos=new ObjectOutputStream(socket.getOutputStream());//输出流
             oos.writeObject(msg0);
             user.setUser(user0);
             user.setPassword(password);
             //接受信息
 
-            ObjectInputStream ois=new ObjectInputStream(socket.getInputStream());
+            ObjectInputStream ois=new ObjectInputStream(socket.getInputStream());//输入流,接受服务器返回的信息
             message msg=(message)ois.readObject();
             oos.flush();
             if(msg.getMsg().equals("登录成功")){
-                //新建立与服务器的连接套接字类型
+                //启动客户端线程持续监听服务器返回的消息
                 ClientThread clientThread=new ClientThread(user.getUser(),socket);
                 clientThread.start();
                 System.out.println("登录成功");
-            ObjectOutputStream ooss=new ObjectOutputStream(clientThread.getSocket().getOutputStream());
+            ObjectOutputStream ooss=new ObjectOutputStream(clientThread.getSocket().getOutputStream());//输出流
                 Scanner sc0 = new Scanner(System.in);
                 while(true) {
                     System.out.println("---------------功能菜单-------------");
@@ -64,8 +63,8 @@ public class client implements Database{
                                 System.out.println("请输入要发送的用户名");
                                 msg1.setTouser(sc2.nextLine());
                                 msg1.setUser(user.getUser());
-                                ooss.writeObject(msg1);
-                                ooss.flush();
+                                ooss.writeObject(msg1);//发送请求给服务端
+                                ooss.flush();//清空缓存
                             System.out.println("发送成功");
                             this.insertMsg(msg1);
                                 break;
@@ -93,7 +92,10 @@ public class client implements Database{
                             ooss.writeObject(msg5);
                             break;
                         case 5:
-
+                            message msg6=new message();
+                            msg6.setType("查询好友");
+                            msg6.setUser(user.getUser());
+                            ooss.writeObject(msg6);
                         default:
                             message msg3 = new message();
                             msg3.setType("输入错误");
@@ -109,50 +111,13 @@ public class client implements Database{
         catch(Exception e){
             e.printStackTrace();
         }}
-
-        public User getUser() {
-                return user;
-        }
-
-        public void setUser(User user) {
-                this.user = user;
-        }
-
-        public Socket getSocket() {
-                return socket;
-        }
-
-        public void setSocket(Socket socket) {
-                this.socket = socket;
-        }
-
-
-
-
-
-
-
+    //--------------------------------服务器线程类---------------------------
         class ClientThread extends Thread{
             private Socket socket;
             private String user;
-            public ClientThread(){}
-
             public Socket getSocket() {
                 return socket;
             }
-
-            public void setSocket(Socket socket) {
-                this.socket = socket;
-            }
-
-            public  String getUser() {
-                return user;
-            }
-
-            public void setUser(String user) {
-                this.user = user;
-            }
-
             public ClientThread(String user, Socket socket) {
                 this.user = user;
                 this.socket = socket;
@@ -161,10 +126,9 @@ public class client implements Database{
             @Override
             public void run() {
                 try{
-//                    ObjectOutputStream oos=new ObjectOutputStream(socket.getOutputStream());
-                    ObjectInputStream ois=new ObjectInputStream(socket.getInputStream());
-//                    Scanner sc1=new Scanner(System.in);
+              ObjectInputStream ois=new ObjectInputStream(socket.getInputStream());//输入流,接受服务器返回的信息
                     while(true){
+                        //不断接受信息并打印出来
                             message msg = (message) ois.readObject();
                             System.out.println(msg.getMsg());
 
@@ -176,9 +140,10 @@ public class client implements Database{
             }
         }
 
+
+//启动客户端
         public static void main(String[] args) {
                 client c=new client();
-
         }
 
 

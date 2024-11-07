@@ -4,10 +4,10 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
         private String user;// 用户名
         private String password;// 密码
-        private String age;
-        private String sex;
-        private String telephone;
-        private String address;
+        private String age;// 年龄
+        private String sex;// 性别
+        private String telephone;// 电话
+        private String address;// 地址
         public User(){}
 
         public User(String user, String password, String age,String sex, String telephone, String address){

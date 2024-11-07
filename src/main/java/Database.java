@@ -3,39 +3,11 @@ import java.awt.*;
 import java.sql.*;
 
 public interface Database {
-    String DB_URL = "jdbc:mysql://gz-cynosdbmysql-grp-4mzg6teb.sql.tencentcdb.com:29919/test";
-    String USER = "root";
-    String PASS = "1161822807Zwf";
-    //--------------------------------------注册功能-----------------------------------------
-    public default boolean Sign_Up(String user, String password)throws Exception {
-        boolean flag = false;
-            try {
-                Connection conn = DriverManager.getConnection("jdbc:mysql://gz-cynosdbmysql-grp-4mzg6teb.sql.tencentcdb.com:29919/test", "root", "1161822807Zwf");
-                PreparedStatement ps = conn.prepareStatement("insert into account(user,password) values (?,?)");
-                PreparedStatement ps1=conn.prepareStatement("insert into r_account(user,password) values (?,?)");
-                ps.setString(1, user);
-                ps.setString(2, password);
-                ps1.setString(1, user);
-                ps1.setString(2, password);
-                int result = ps.executeUpdate();
-                ps1.executeUpdate();
-                if (result > 0) {
-                    flag=true;
-                    System.out.println("注册成功！");
-                } else {
-                    flag=false;
-                    System.out.println("注册失败！");
-                }
-                ps1.close();
-                ps.close();
-                conn.close();
-            } catch (Exception e) {
-                System.out.println("数据库连接失败！" + e.getMessage());
-                e.printStackTrace();
+    //输入数据库连接账号密码
+    String DB_URL = "";
+    String USER = "";
+    String PASS = "";
 
-        }
-            return flag;
-    }
 //---------------------------------------登录功能-------------------------------------
     public default  boolean Login(String user,String password) throws Exception {
         Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
@@ -44,13 +16,6 @@ public interface Database {
         p0.setString(2, password);
         p0.executeQuery();
         if (p0.getResultSet().next()) {
-//            User u = new User();
-//            u.setUser(p0.getResultSet().getString("user"));
-//            u.setPassword(p0.getResultSet().getString("password"));
-//            u.setAge(p0.getResultSet().getString("age"));
-//            u.setSex(p0.getResultSet().getString("sex"));
-//            u.setTelephone(p0.getResultSet().getString("telephone"));
-//            u.setAddress(p0.getResultSet().getString("address"));
             p0.close();
             conn.close();
             return true;
@@ -70,7 +35,7 @@ public interface Database {
          p.executeUpdate();
          p.close();
          conn.close();
-    }
+    }//插入聊天记录
 
     public default  message searchMsg(String user) throws Exception{
         Connection conn = DriverManager.getConnection(DB_URL,USER,PASS);
@@ -90,7 +55,7 @@ public interface Database {
         p.close();
         conn.close();
         return msg;
-    }
+    }//查询聊天记录
 
     public default boolean  AddFriend(String user,String friend_name) throws Exception{
         boolean sign=false;
@@ -125,6 +90,20 @@ public interface Database {
             conn.close();
         }catch (Exception e){}
         return sign;
+    }//添加好友
+    public default message SearchFriend(String user) throws Exception {
+        Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        PreparedStatement p = conn.prepareStatement("select * from friends where user=? ");
+        p.setString(1, user);
+        message msg = new message();
+        msg.setMsg("");
+        p.executeQuery();
+        while (p.getResultSet().next()) {
+
+            msg.setMsg(msg.getMsg() + "用户：" + p.getResultSet().getString("name") + "的性别：" + p.getResultSet().getString("sex") + "，年龄：" + p.getResultSet().getString("age") + "，电话：" + p.getResultSet().getString("telephone") + "，地址：" + p.getResultSet().getString("address") + "\n");
+
     }
+        return msg;
+    }//查询好友
     }
 
